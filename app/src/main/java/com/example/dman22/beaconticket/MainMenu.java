@@ -51,14 +51,14 @@ import java.util.concurrent.TimeUnit;
 
 import static com.estimote.sdk.BeaconManager.MonitoringListener;
 public class MainMenu extends ActionBarActivity {
-
+    String test = "hello";
     private static final String TAG = MainMenu.class.getSimpleName();
 
     private BeaconManager beaconManager;
     private static final int REQUEST_ENABLE_BT = 1234;
     private static final String ESTIMOTE_PROXIMITY_UUID = "B9407F30-F5F8-466E-AFF9-25556B57FE6D";
     private static final Region ALL_ESTIMOTE_BEACONS = new Region("regionId",ESTIMOTE_PROXIMITY_UUID,54212,511);//6245,46072);
-
+    //test for commit
     //global variables
     public static final String URL = "http://54.200.138.139:8080/BeaconServlet/api/rest/ticket";
 
