@@ -51,7 +51,8 @@ import java.util.concurrent.TimeUnit;
 
 import static com.estimote.sdk.BeaconManager.MonitoringListener;
 public class MainMenu extends ActionBarActivity {
-    String test = "hello";
+    String test2 = "hello";
+
     private static final String TAG = MainMenu.class.getSimpleName();
 
     private BeaconManager beaconManager;
