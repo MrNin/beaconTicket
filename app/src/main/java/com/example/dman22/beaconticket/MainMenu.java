@@ -210,7 +210,7 @@ public class MainMenu extends ActionBarActivity {
                 layout.setBackgroundColor(Color.RED);*/
                 Button btnTest = (Button) findViewById(R.id.result);
                 btnTest.setBackgroundColor(Color.RED);
-                Button btnStatus = (Button) findViewById(R.id.status);
+                /*Button btnStatus = (Button) findViewById(R.id.status);
                 setStatus(false);
                 //btnStatus.setText("OFF");
                 Resources res = getResources();
@@ -218,7 +218,7 @@ public class MainMenu extends ActionBarActivity {
                 btnStatus.setBackground(myImage);
                 blueTooth(false);
                 Switch toggle = (Switch) findViewById(R.id.switcher);
-                toggle.setChecked(false);
+                toggle.setChecked(false);*/
 
             }
         });
