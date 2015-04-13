@@ -109,6 +109,7 @@ public class MainMenu extends ActionBarActivity {
     public boolean status;
     public Bundle b;
     private SQLiteDatabase main;
+    private boolean check = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -198,10 +199,13 @@ public class MainMenu extends ActionBarActivity {
             public void onEnteredRegion(Region region, List<Beacon> beacons) {
                 /*RelativeLayout layout = (RelativeLayout) findViewById(R.id.my_layout);
                 layout.setBackgroundColor(Color.GREEN);*/
-                Button btnTest = (Button) findViewById(R.id.result);
-                btnTest.setBackgroundColor(Color.GREEN);
-                Toast.makeText(MainMenu.this, "sending", Toast.LENGTH_SHORT).show();
-                new setTicketAsyncTask().execute();
+                if (!check){
+                    Button btnTest = (Button) findViewById(R.id.result);
+                    btnTest.setBackgroundColor(Color.GREEN);
+                    Toast.makeText(MainMenu.this, "sending", Toast.LENGTH_SHORT).show();
+                    new setTicketAsyncTask().execute();
+                    check = true;
+                }
             }
 
             @Override
