@@ -214,6 +214,7 @@ public class MainMenu extends ActionBarActivity {
                 layout.setBackgroundColor(Color.RED);*/
                 Button btnTest = (Button) findViewById(R.id.result);
                 btnTest.setBackgroundColor(Color.RED);
+                check = false;
                 /*Button btnStatus = (Button) findViewById(R.id.status);
                 setStatus(false);
                 //btnStatus.setText("OFF");
