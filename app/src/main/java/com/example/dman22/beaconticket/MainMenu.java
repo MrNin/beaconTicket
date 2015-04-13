@@ -204,6 +204,7 @@ public class MainMenu extends ActionBarActivity {
                     btnTest.setBackgroundColor(Color.GREEN);
                     Toast.makeText(MainMenu.this, "sending", Toast.LENGTH_SHORT).show();
                     new setTicketAsyncTask().execute();
+                    check = true;
                 }
             }
 
