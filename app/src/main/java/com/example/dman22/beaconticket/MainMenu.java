@@ -23,6 +23,7 @@ import android.os.RemoteException;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -129,57 +130,35 @@ public class MainMenu extends ActionBarActivity {
         //setPassword("1234");
         setPassword(b.getString("password"));
         setEventID("1");
-        setStatus(false);
+        setStatus(true);
         runInitiate();
 
         //UserName.setText(message);
         UserName.setText(getUserName());
 
-        //determining status of bluetooth
-        BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        Button btnStatus = (Button) findViewById(R.id.status);
-        Switch toggle = (Switch) findViewById(R.id.switcher);
-        if(mBluetoothAdapter.isEnabled()) {
-            toggle.setChecked(true);
-            //btnStatus.setText("ON");
-            Resources res = getResources();
-            Drawable myImage = res.getDrawable(R.drawable.status_on);
-            btnStatus.setBackground(myImage);
-        }
-        else if(!mBluetoothAdapter.isEnabled()) {
-            toggle.setChecked(false);
-            //btnStatus.setText("OFF");
-            Resources res = getResources();
-            Drawable myImage = res.getDrawable(R.drawable.status_off);
-            btnStatus.setBackground(myImage);
-        }
-
         //switch controls
-
+        Switch toggle = (Switch) findViewById(R.id.switcher);
+        toggle.setChecked(true);
         toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 Button btnStatus = (Button) findViewById(R.id.status);
                 if (isChecked) {
-                    // Enable bluetooth
+                    // Enable teacon connection
                     if(!status){
                         setStatus(true);
-                        //btnStatus.setText("ON");
 
                         Resources res = getResources();
                         Drawable myImage = res.getDrawable(R.drawable.status_on);
                         btnStatus.setBackground(myImage);
-                        blueTooth(true);
                     }
                 } else {
-                    // Disable bluetooth
+                    // Disable beacon connection
                     if(status){
                         setStatus(false);
-                        //btnStatus.setText("OFF");
 
                         Resources res = getResources();
                         Drawable myImage = res.getDrawable(R.drawable.status_off);
                         btnStatus.setBackground(myImage);
-                        blueTooth(false);
                     }
                 }
             }
@@ -199,7 +178,7 @@ public class MainMenu extends ActionBarActivity {
             public void onEnteredRegion(Region region, List<Beacon> beacons) {
                 /*RelativeLayout layout = (RelativeLayout) findViewById(R.id.my_layout);
                 layout.setBackgroundColor(Color.GREEN);*/
-                if (!check){
+                if (!check && status){
                     Button btnTest = (Button) findViewById(R.id.result);
                     btnTest.setBackgroundColor(Color.GREEN);
                     Toast.makeText(MainMenu.this, "sending", Toast.LENGTH_SHORT).show();
@@ -210,37 +189,12 @@ public class MainMenu extends ActionBarActivity {
 
             @Override
             public void onExitedRegion(Region region) {
-                /*RelativeLayout layout = (RelativeLayout) findViewById(R.id.my_layout);
-                layout.setBackgroundColor(Color.RED);*/
                 Button btnTest = (Button) findViewById(R.id.result);
                 btnTest.setBackgroundColor(Color.RED);
                 check = false;
-                /*Button btnStatus = (Button) findViewById(R.id.status);
-                setStatus(false);
-                //btnStatus.setText("OFF");
-                Resources res = getResources();
-                Drawable myImage = res.getDrawable(R.drawable.status_off);
-                btnStatus.setBackground(myImage);
-                blueTooth(false);
-                Switch toggle = (Switch) findViewById(R.id.switcher);
-                toggle.setChecked(false);*/
 
             }
         });
-    }
-
-    public void blueTooth(boolean status){
-        BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if (mBluetoothAdapter != null) {
-            // Device does support Bluetooth
-            if (!mBluetoothAdapter.isEnabled() && status) {
-                Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-                //mBluetoothAdapter.enable();
-            }else if(mBluetoothAdapter.isEnabled() && !status){
-                mBluetoothAdapter.disable();
-            }
-        }
     }
 
     private class setTicketAsyncTask extends AsyncTask<java.net.URL, Integer, String> {
@@ -271,6 +225,7 @@ public class MainMenu extends ActionBarActivity {
         }
 
         protected void onPostExecute(String result) {
+            updateEventInfo("The Happening");
             Toast.makeText(MainMenu.this, result, Toast.LENGTH_SHORT).show();
         }
     }
@@ -316,6 +271,14 @@ public class MainMenu extends ActionBarActivity {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date date = new Date();
         return dateFormat.format(date);
+    }
+
+    public void updateEventInfo(String name) {
+        TextView eventTime = (TextView) findViewById(R.id.eventTime);
+        TextView eventName = (TextView) findViewById(R.id.eventName);
+
+        eventTime.setText(getNow());
+        eventName.setText(name);
     }
 
     @Override
@@ -374,13 +337,6 @@ public class MainMenu extends ActionBarActivity {
         if (!beaconManager.isBluetoothEnabled()) {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent,REQUEST_ENABLE_BT);
-            /* for the GUI */
-            Button btnStatus = (Button) findViewById(R.id.status);
-            Switch toggle = (Switch) findViewById(R.id.switcher);
-            toggle.setChecked(true);
-            Resources res = getResources();
-            Drawable myImage = res.getDrawable(R.drawable.status_on);
-            btnStatus.setBackground(myImage);
         } else {
             connectToService();
         }

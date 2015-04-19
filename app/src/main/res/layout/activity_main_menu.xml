@@ -36,7 +36,7 @@
     <Switch
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Bluetooth"
+        android:text="Off/On"
         android:id="@+id/switcher"
         android:layout_centerHorizontal="true"
         android:layout_toRightOf="@+id/status"
@@ -58,8 +58,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Your event."
-        android:id="@+id/eventText"
+        android:text="--------"
+        android:id="@+id/eventName"
         android:layout_below="@+id/status"
         android:layout_centerHorizontal="true"
         android:layout_alignStart="@+id/UserNameLabel"
@@ -69,9 +69,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="time of arrival"
-        android:id="@+id/timeText"
-        android:layout_below="@+id/eventText"
+        android:text="--------"
+        android:id="@+id/eventTime"
+        android:layout_below="@+id/eventName"
         android:layout_alignStart="@+id/UserNameLabel"
         android:layout_marginTop="20dp" />
 
