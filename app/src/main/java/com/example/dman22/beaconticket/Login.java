@@ -24,6 +24,8 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -79,12 +81,30 @@ public class Login extends ActionBarActivity {
         this.connection = connection;
     }
 
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public String getLoginMessage() {
+        return loginMessage;
+    }
+
+    public void setLoginMessage(String loginMessage) {
+        this.loginMessage = loginMessage;
+    }
+
 
     String userName;
     String password;
     int statusCode;
     boolean passed;
     int connection;
+    String userId;
+    String loginMessage;
     private SQLiteDatabase main;
 
 
@@ -110,7 +130,7 @@ public class Login extends ActionBarActivity {
                 setPassword(Password.getText().toString());
 
 
-                if(getPassword().equals("1234") && !getUserName().equals("")) {
+                if(!getPassword().equals("") && !getUserName().equals("")) {
                     setPassed(false);
                     executeLogin();
 
@@ -141,6 +161,8 @@ public class Login extends ActionBarActivity {
         setConnection(0);
         setPassed(false);
         setStatusCode(0);
+        setLoginMessage("");
+        setUserId("");
         runInitiate();
     }
 
@@ -160,6 +182,18 @@ public class Login extends ActionBarActivity {
         //intent.putExtra(EXTRA_MESSAGE, user);
         intent.putExtras(b);
         startActivity(intent);
+    }
+
+    /***  Json Parser ***/
+    public void parser(String input){
+        try {
+            JSONObject results = new JSONObject(input);
+            setUserId(results.getString("userId"));
+            setLoginMessage(results.getString("loginMessage"));
+        }
+        catch(JSONException ex) {
+            ex.printStackTrace();
+        }
     }
 
     /***  Verifies if a Username and password are correct. ***/
@@ -186,15 +220,18 @@ public class Login extends ActionBarActivity {
             }
 
             setStatusCode(response.getStatusLine().getStatusCode());
-            if(!body.equals("Invalid Login") && !body.equals("")){
+            parser(body);
+            if(!(getLoginMessage()).equals("Invalid Password") && !body.equals("")){
                 setPassed(true);
+            }else{
+                //noPass();
             }
 
-            return response.getStatusLine().toString() + " - " + body ;
+            return body ;
         }
 
         protected void onPostExecute(String result) {
-            Toast.makeText(Login.this, result, Toast.LENGTH_SHORT).show();
+            //Toast.makeText(Login.this, result, Toast.LENGTH_SHORT).show();
             if(getStatusCode() == 200 && isPassed()) {
                 Toast.makeText(Login.this, "Access Granted", Toast.LENGTH_SHORT).show();
                 runUpdate();
@@ -223,21 +260,23 @@ public class Login extends ActionBarActivity {
     public void runInitiate(){
         //access database
         main = null;
-        main = this.openOrCreateDatabase("TicketMaster", MODE_PRIVATE, null);
-        main.execSQL("CREATE TABLE IF NOT EXISTS login (username TEXT, created TEXT, last_login TEXT);");
+        main = this.openOrCreateDatabase("BeaconMaster", MODE_PRIVATE, null);
+        main.execSQL("CREATE TABLE IF NOT EXISTS login (username TEXT, password TEXT, created TEXT, last_login TEXT);");
     }
 
     public boolean runCheck(){
         Cursor c = main.rawQuery("select * from login",null);
         int numRows = (int)(DatabaseUtils.queryNumEntries(main, "login"));
-        int Column = c.getColumnIndex("username");
+        int Column1 = c.getColumnIndex("username");
+        int Column2 = c.getColumnIndex("password");
 
         c.moveToFirst();
 
         int current = 0;
         while(c != null && current != numRows){
-            String temp = c.getString(Column);
-            if(temp.equals(getUserName())){
+            String temp1 = c.getString(Column1);
+            String temp2 = c.getString(Column2);
+            if(temp1.equals(getUserName()) && temp2.equals(getPassword())){
                 return true;
             }
 
@@ -250,8 +289,9 @@ public class Login extends ActionBarActivity {
     public void runUpdate() {
         if(runCheck())
             main.execSQL("update login set last_login = '" + getNow() + "' where username = '" + getUserName() + "'");
-        else
-            main.execSQL("insert into login (username, created, last_login) values ('" + getUserName() + "', '" + getNow() + "', '" + getNow() + "'); ");
+        else {
+            main.execSQL("insert into login (username, password, created, last_login) values ('" + getUserName() + "', '" + getPassword() + "', '" + getNow() + "', '" + getNow() + "'); ");
+        }
         //main.execSQL("insert into login (username, created, last_login) values ( 'hello', 'hello', 'hello'); ");
     }
 
