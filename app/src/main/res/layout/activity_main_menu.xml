@@ -63,7 +63,7 @@
         android:layout_below="@+id/status"
         android:layout_centerHorizontal="true"
         android:layout_alignStart="@+id/UserNameLabel"
-        android:layout_marginTop="40dp" />
+        android:layout_marginTop="15dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -73,7 +73,17 @@
         android:id="@+id/eventTime"
         android:layout_below="@+id/eventName"
         android:layout_alignStart="@+id/UserNameLabel"
-        android:layout_marginTop="20dp" />
+        android:layout_marginTop="15dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="--------"
+        android:id="@+id/eventResponse"
+        android:layout_below="@+id/eventTime"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="5dp" />
 
 
 </RelativeLayout>

@@ -136,7 +136,6 @@ public class Login extends ActionBarActivity {
                     executeLogin();
 
                 }else{
-                    Toast.makeText(Login.this, "Access Denied", Toast.LENGTH_SHORT).show();
                     noPass();
                 }
             }
@@ -308,6 +307,7 @@ public class Login extends ActionBarActivity {
     }
 
     public void noPass(){
+        Toast.makeText(Login.this, "Access Denied", Toast.LENGTH_SHORT).show();
         TextView result = (TextView) findViewById(R.id.result);
         result.setText("Incorrect\nCredentials");
     }

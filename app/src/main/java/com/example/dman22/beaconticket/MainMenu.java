@@ -40,6 +40,8 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -111,12 +113,21 @@ public class MainMenu extends ActionBarActivity {
         this.userId = userId;
     }
 
+    public String getTicketResponse() {
+        return ticketResponse;
+    }
+
+    public void setTicketResponse(String ticketResponse) {
+        this.ticketResponse = ticketResponse;
+    }
+
     public String eventID;
     public String userName;
     public String password;
     public int statusCode;
     public boolean status;
     public int userId;
+    public String ticketResponse;
 
     public Bundle b;
     private SQLiteDatabase main;
@@ -200,7 +211,7 @@ public class MainMenu extends ActionBarActivity {
         setUserName(b.getString("user"));
         setPassword(b.getString("password"));
         setUserId(b.getInt("userId"));
-        setEventID("1");
+        setEventID("N/A");
         setStatus(true);
         runInitiate();
 
@@ -211,49 +222,86 @@ public class MainMenu extends ActionBarActivity {
     }
 
     private class setTicketAsyncTask extends AsyncTask<java.net.URL, Integer, String> {
+        private boolean isOnline = true;
+        private boolean passed = false;
+
         @Override
         protected String doInBackground(URL... url) {
             HttpResponse response = null;
             String body ="";
             // create HttpClient
             HttpClient client = new DefaultHttpClient();
-            HttpPost post = new HttpPost("http://54.200.138.139:8080/BeaconServlet/api/rest/Roster");
+            HttpPost post = new HttpPost("http://54.200.138.139:8080/BeaconServlet/api/rest/Roster/uuid");
 
-            String err = getPassword();
-
+            //sending input pararmeters
             List<NameValuePair> pairs = new ArrayList<NameValuePair>();
-            pairs.add(new BasicNameValuePair("username", getUserName()));
-            pairs.add(new BasicNameValuePair("eventId", getEventID()));
+            pairs.add(new BasicNameValuePair("uuid", ESTIMOTE_PROXIMITY_UUID));
+            pairs.add(new BasicNameValuePair("userId", getEventID()));
             try {
                 post.setEntity(new UrlEncodedFormEntity(pairs));
                 response = client.execute(post);
                 BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
                 body = reader.readLine();
             } catch(Exception e) {
+                isOnline = false;
                 return "Error: " + e.getMessage();
             }
 
             setStatusCode(response.getStatusLine().getStatusCode());
-            return response.getStatusLine().toString() + " - " + body ;
+            if(body != null)
+                passed = parser(body);
+            return body ;
         }
 
         protected void onPostExecute(String result) {
-            updateEventInfo("The Happening");
-            Toast.makeText(MainMenu.this, result, Toast.LENGTH_SHORT).show();
+            updateEventInfo();
+            //Toast.makeText(MainMenu.this, result, Toast.LENGTH_SHORT).show();
+            if(getStatusCode() == 200) {
+                if(passed){
+                    if(getTicketResponse().equals("Successfully Scanned Entry"))
+                        runUpdate("Entered");
+                    else
+                        runUpdate("Left");
+                    updateEventInfo();
+                }else{
+                    noPass(isOnline,true);
+                }
+            }else if(getStatusCode() == 404 || getStatusCode() == 400){
+                noPass(isOnline,false);
+            }else{
+                noPass(isOnline,false);
+            }
         }
+    }
+
+    /***  Json Parser ***/
+    public boolean parser(String input){
+        boolean response = false;
+
+        try {
+            JSONObject results = new JSONObject(input);
+            setEventID(results.getString("eventName"));
+            response = results.getBoolean("didSucceedScan");
+            setTicketResponse(results.getString("response"));
+        }
+        catch(JSONException ex) {
+            ex.printStackTrace();
+        }
+
+        return response;
     }
 
     /****       Local Database functions    ****/
     public void runInitiate(){
         //access database
         main = null;
-        main = this.openOrCreateDatabase("TicketMaster", MODE_PRIVATE, null);
-        main.execSQL("CREATE TABLE IF NOT EXISTS event (username TEXT, eventID TEXT, entered TEXT);");
+        main = this.openOrCreateDatabase("BeaconMaster", MODE_PRIVATE, null);
+        main.execSQL("CREATE TABLE IF NOT EXISTS eventRecord (username TEXT, eventID TEXT, entered TEXT, status TEXT);");
     }
 
     public boolean runCheck(){
         Cursor c = main.rawQuery("select * from event",null);
-        int numRows = (int)(DatabaseUtils.queryNumEntries(main, "event"));
+        int numRows = (int)(DatabaseUtils.queryNumEntries(main, "eventRecord"));
         int Column1 = c.getColumnIndex("username");
         int Column2 = c.getColumnIndex("EventID");
 
@@ -273,10 +321,9 @@ public class MainMenu extends ActionBarActivity {
         return false;
     }
 
-    public void runUpdate() {
-        if(!runCheck())
-            main.execSQL("insert into login (username, eventID, entered) values ('" + getUserName() + "', '" + getEventID() + "', '" + getNow() + "'); ");
-        //main.execSQL("insert into login (username, created, last_login) values ( 'hello', 'hello', 'hello'); ");
+    public void runUpdate(String status) {
+        String insert = "insert into login (username, eventID, entered, status) values ('" + getUserName() + "', '" + getEventID() + "', '" + getNow() + "', '" + status + "'); ";
+        main.execSQL(insert);
     }
 
     private String getNow(){
@@ -286,12 +333,43 @@ public class MainMenu extends ActionBarActivity {
         return dateFormat.format(date);
     }
 
-    public void updateEventInfo(String name) {
+    //happens upon successful scan
+    public void updateEventInfo() {
         TextView eventTime = (TextView) findViewById(R.id.eventTime);
         TextView eventName = (TextView) findViewById(R.id.eventName);
+        TextView eventResponse = (TextView) findViewById(R.id.eventResponse);
 
         eventTime.setText(getNow());
-        eventName.setText(name);
+        eventName.setText(getEventID());
+        eventResponse.setText(getTicketResponse());
+    }
+
+    //happens on non-successful scan
+    public void noPass(boolean connected, boolean server){
+        //textviews to be manipulated
+        TextView eventTime = (TextView) findViewById(R.id.eventTime);
+        TextView eventName = (TextView) findViewById(R.id.eventName);
+        TextView eventResponse = (TextView) findViewById(R.id.eventResponse);
+
+        //internet but no success
+        if(connected){
+
+            if(server) {
+                eventTime.setText(getNow());
+                eventResponse.setText(getTicketResponse());
+                eventName.setText(getEventID());
+            }
+            else {
+                eventTime.setText("N/A");
+                eventName.setText("N/A");
+                eventResponse.setText("Can't connect to server. (" + getStatusCode() + ")");
+            }
+        }//no internet
+        else{
+            eventTime.setText("N/A");
+            eventName.setText("N/A");
+            eventResponse.setText("Can't connect to internet.");
+        }
     }
 
     @Override
