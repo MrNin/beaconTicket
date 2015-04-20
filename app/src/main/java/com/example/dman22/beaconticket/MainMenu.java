@@ -103,11 +103,21 @@ public class MainMenu extends ActionBarActivity {
         this.statusCode = statusCode;
     }
 
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+
     public String eventID;
     public String userName;
     public String password;
     public int statusCode;
     public boolean status;
+    public int userId;
+
     public Bundle b;
     private SQLiteDatabase main;
     private boolean check = false;
@@ -119,22 +129,9 @@ public class MainMenu extends ActionBarActivity {
 
         // Get the message from the intent
         Intent intent = getIntent();
-        //String message = intent.getStringExtra(beacon.EXTRA_MESSAGE);
         b = intent.getExtras();
-        //show message
-        TextView UserName = (TextView) findViewById(R.id.UserNameLabel);
-
-        //initializing userName, password, and eventID
-        //setUserName(message);
-        setUserName(b.getString("user"));
-        //setPassword("1234");
-        setPassword(b.getString("password"));
-        setEventID("1");
-        setStatus(true);
-        runInitiate();
-
-        //UserName.setText(message);
-        UserName.setText(getUserName());
+        //run settup function
+        settup();
 
         //switch controls
         Switch toggle = (Switch) findViewById(R.id.switcher);
@@ -195,6 +192,22 @@ public class MainMenu extends ActionBarActivity {
 
             }
         });
+    }
+
+    //run on create
+    public void settup() {
+        //initializing userName, password, and eventID
+        setUserName(b.getString("user"));
+        setPassword(b.getString("password"));
+        setUserId(b.getInt("userId"));
+        setEventID("1");
+        setStatus(true);
+        runInitiate();
+
+        //display username
+        TextView UserName = (TextView) findViewById(R.id.UserNameLabel);
+        UserName.setText(getUserName());
+
     }
 
     private class setTicketAsyncTask extends AsyncTask<java.net.URL, Integer, String> {

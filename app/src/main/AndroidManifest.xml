@@ -17,7 +17,7 @@
             android:name=".Login"
             android:label="@string/app_name"
             android:screenOrientation="nosensor"
-            android:configChanges="keyboardHidden|orientation">
+            android:configChanges="orientation">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -28,7 +28,7 @@
             android:name=".MainMenu"
             android:label="@string/title_activity_main_menu"
             android:screenOrientation="nosensor"
-            android:configChanges="keyboardHidden|orientation">
+            android:configChanges="orientation">
 
             </activity>
 

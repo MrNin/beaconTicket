@@ -81,11 +81,11 @@ public class Login extends ActionBarActivity {
         this.connection = connection;
     }
 
-    public String getUserId() {
+    public int getUserId() {
         return userId;
     }
 
-    public void setUserId(String userId) {
+    public void setUserId(int userId) {
         this.userId = userId;
     }
 
@@ -103,8 +103,9 @@ public class Login extends ActionBarActivity {
     int statusCode;
     boolean passed;
     int connection;
-    String userId;
+    int userId;
     String loginMessage;
+
     private SQLiteDatabase main;
 
 
@@ -135,7 +136,7 @@ public class Login extends ActionBarActivity {
                     executeLogin();
 
                 }else{
-                    //Toast.makeText(beacon.this, "Permission Denied", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(Login.this, "Access Denied", Toast.LENGTH_SHORT).show();
                     noPass();
                 }
             }
@@ -162,7 +163,7 @@ public class Login extends ActionBarActivity {
         setPassed(false);
         setStatusCode(0);
         setLoginMessage("");
-        setUserId("");
+        setUserId(-1);
         runInitiate();
     }
 
@@ -178,6 +179,7 @@ public class Login extends ActionBarActivity {
         b.putString("user", getUserName());
         b.putString("password", getPassword());
         b.putInt("connection", getConnection());
+        b.putInt("userId", getUserId());
 
         //intent.putExtra(EXTRA_MESSAGE, user);
         intent.putExtras(b);
@@ -188,7 +190,7 @@ public class Login extends ActionBarActivity {
     public void parser(String input){
         try {
             JSONObject results = new JSONObject(input);
-            setUserId(results.getString("userId"));
+            setUserId(results.getInt("userId"));
             setLoginMessage(results.getString("loginMessage"));
         }
         catch(JSONException ex) {
@@ -198,6 +200,8 @@ public class Login extends ActionBarActivity {
 
     /***  Verifies if a Username and password are correct. ***/
     private class checkLoginAsyncTask extends AsyncTask<URL, Integer, String> {
+        private boolean isOnline = true;
+
         @Override
         protected String doInBackground(URL... url) {
             HttpResponse response = null;
@@ -216,6 +220,7 @@ public class Login extends ActionBarActivity {
                 BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
                 body = reader.readLine();
             } catch(Exception e) {
+                isOnline = false;
                 return "Error: " + e.getMessage();
             }
 
@@ -223,8 +228,6 @@ public class Login extends ActionBarActivity {
             parser(body);
             if(!(getLoginMessage()).equals("Invalid Password") && !body.equals("")){
                 setPassed(true);
-            }else{
-                //noPass();
             }
 
             return body ;
@@ -234,6 +237,7 @@ public class Login extends ActionBarActivity {
             //Toast.makeText(Login.this, result, Toast.LENGTH_SHORT).show();
             if(getStatusCode() == 200 && isPassed()) {
                 Toast.makeText(Login.this, "Access Granted", Toast.LENGTH_SHORT).show();
+                setConnection(3);
                 runUpdate();
                 SubmitResponse(userName);
             }else if(getStatusCode() == 404 || getStatusCode() == 400){
@@ -245,8 +249,9 @@ public class Login extends ActionBarActivity {
                     noPass();
                 }
             }else{
-                setConnection(1);
-                if(runCheck()){
+                //only do if the app had trouble connecting to servlet due to no wifi
+                if(runCheck()  && !isOnline){
+                    setConnection(1);
                     runUpdate();
                     SubmitResponse(userName);
                 }else {
