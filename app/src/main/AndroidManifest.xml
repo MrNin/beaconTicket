@@ -30,7 +30,7 @@
             android:screenOrientation="nosensor"
             android:configChanges="orientation">
 
-            </activity>
+         </activity>
 
         <service android:name="com.estimote.sdk.service.BeaconService"
             android:exported="false"/>

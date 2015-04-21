@@ -21,6 +21,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.RemoteException;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -53,6 +54,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static com.estimote.sdk.BeaconManager.MonitoringListener;
+
 public class MainMenu extends ActionBarActivity {
 
     private static final String TAG = MainMenu.class.getSimpleName();
@@ -150,7 +152,7 @@ public class MainMenu extends ActionBarActivity {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 Button btnStatus = (Button) findViewById(R.id.status);
                 if (isChecked) {
-                    // Enable teacon connection
+                    // Enable beacon connection
                     if(!status){
                         setStatus(true);
 
@@ -183,23 +185,30 @@ public class MainMenu extends ActionBarActivity {
         beaconManager.setMonitoringListener(new MonitoringListener() {
             @Override
             public void onEnteredRegion(Region region, List<Beacon> beacons) {
-                /*RelativeLayout layout = (RelativeLayout) findViewById(R.id.my_layout);
-                layout.setBackgroundColor(Color.GREEN);*/
-                if (!check && status){
-                    Button btnTest = (Button) findViewById(R.id.result);
-                    btnTest.setBackgroundColor(Color.GREEN);
-                    Toast.makeText(MainMenu.this, "sending", Toast.LENGTH_SHORT).show();
-                    new setTicketAsyncTask().execute();
-                    check = true;
-                }
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (!check && status) {
+                            Button btnTest = (Button) findViewById(R.id.result);
+                            btnTest.setBackgroundColor(Color.GREEN);
+                            Toast.makeText(MainMenu.this, "sending", Toast.LENGTH_SHORT).show();
+                            new setTicketAsyncTask().execute();
+                            check = true;
+                        }
+                    }
+                });
             }
 
             @Override
             public void onExitedRegion(Region region) {
-                Button btnTest = (Button) findViewById(R.id.result);
-                btnTest.setBackgroundColor(Color.RED);
-                check = false;
-
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run(){
+                        Button btnTest = (Button) findViewById(R.id.result);
+                        btnTest.setBackgroundColor(Color.RED);
+                        check = false;
+                    }
+                });
             }
         });
     }
@@ -218,6 +227,22 @@ public class MainMenu extends ActionBarActivity {
         TextView UserName = (TextView) findViewById(R.id.UserNameLabel);
         UserName.setText(getUserName());
 
+    }
+
+    //***   notification handler    ***//
+    public void notification(String update){
+        /*Intent intent = new Intent(this, MainMenu.class);
+        PendingIntent pending = PendingIntent.getActivity(this, 0, intent, 0);*/
+
+        Notification notifications = new Notification.Builder(this)
+                .setContentTitle(update)
+                .setContentText("Open BeaconTicket App for more.").setSmallIcon(R.drawable.ic_launcher)
+                //.setContentIntent(pending)
+                .build();
+
+        NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        notifications.flags |= Notification.FLAG_AUTO_CANCEL;
+        manager.notify(0, notifications);
     }
 
     private class setTicketAsyncTask extends AsyncTask<java.net.URL, Integer, String> {
@@ -253,7 +278,6 @@ public class MainMenu extends ActionBarActivity {
         }
 
         protected void onPostExecute(String result) {
-            updateEventInfo();
             //Toast.makeText(MainMenu.this, result, Toast.LENGTH_SHORT).show();
             if(getStatusCode() == 200) {
                 if(passed){
@@ -262,13 +286,16 @@ public class MainMenu extends ActionBarActivity {
                     else
                         runUpdate("Left");
                     updateEventInfo();
+                    notification(getTicketResponse());
                 }else{
                     noPass(isOnline,true);
                 }
             }else if(getStatusCode() == 404 || getStatusCode() == 400){
                 noPass(isOnline,false);
+                notification("Couldn't connect to server.");
             }else{
                 noPass(isOnline,false);
+                notification("Couldn't connect to internet.");
             }
         }
     }
