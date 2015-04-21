@@ -63,7 +63,6 @@ public class MainMenu extends ActionBarActivity {
     private static final Region ALL_ESTIMOTE_BEACONS = new Region("regionId",ESTIMOTE_PROXIMITY_UUID,54212,511);//6245,46072);
 
     //global variables
-    public static final String URL = "http://54.200.138.139:8080/BeaconServlet/api/rest/ticket";
 
     public boolean isStatus() {
         return status;
@@ -105,11 +104,11 @@ public class MainMenu extends ActionBarActivity {
         this.statusCode = statusCode;
     }
 
-    public int getUserId() {
+    public String getUserId() {
         return userId;
     }
 
-    public void setUserId(int userId) {
+    public void setUserId(String userId) {
         this.userId = userId;
     }
 
@@ -126,7 +125,7 @@ public class MainMenu extends ActionBarActivity {
     public String password;
     public int statusCode;
     public boolean status;
-    public int userId;
+    public String userId;
     public String ticketResponse;
 
     public Bundle b;
@@ -210,7 +209,7 @@ public class MainMenu extends ActionBarActivity {
         //initializing userName, password, and eventID
         setUserName(b.getString("user"));
         setPassword(b.getString("password"));
-        setUserId(b.getInt("userId"));
+        setUserId(b.getString("userId"));
         setEventID("N/A");
         setStatus(true);
         runInitiate();
@@ -236,7 +235,7 @@ public class MainMenu extends ActionBarActivity {
             //sending input pararmeters
             List<NameValuePair> pairs = new ArrayList<NameValuePair>();
             pairs.add(new BasicNameValuePair("uuid", ESTIMOTE_PROXIMITY_UUID));
-            pairs.add(new BasicNameValuePair("userId", getEventID()));
+            pairs.add(new BasicNameValuePair("userId", getUserId()));
             try {
                 post.setEntity(new UrlEncodedFormEntity(pairs));
                 response = client.execute(post);
@@ -322,7 +321,7 @@ public class MainMenu extends ActionBarActivity {
     }
 
     public void runUpdate(String status) {
-        String insert = "insert into login (username, eventID, entered, status) values ('" + getUserName() + "', '" + getEventID() + "', '" + getNow() + "', '" + status + "'); ";
+        String insert = "insert into eventRecord (username, eventID, entered, status) values ('" + getUserName() + "', '" + getEventID() + "', '" + getNow() + "', '" + status + "'); ";
         main.execSQL(insert);
     }
 

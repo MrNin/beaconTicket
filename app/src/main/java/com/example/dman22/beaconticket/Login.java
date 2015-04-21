@@ -81,11 +81,11 @@ public class Login extends ActionBarActivity {
         this.connection = connection;
     }
 
-    public int getUserId() {
+    public String getUserId() {
         return userId;
     }
 
-    public void setUserId(int userId) {
+    public void setUserId(String userId) {
         this.userId = userId;
     }
 
@@ -103,7 +103,7 @@ public class Login extends ActionBarActivity {
     int statusCode;
     boolean passed;
     int connection;
-    int userId;
+    String userId;
     String loginMessage;
 
     private SQLiteDatabase main;
@@ -162,7 +162,7 @@ public class Login extends ActionBarActivity {
         setPassed(false);
         setStatusCode(0);
         setLoginMessage("");
-        setUserId(-1);
+        setUserId("-1");
         runInitiate();
     }
 
@@ -178,7 +178,7 @@ public class Login extends ActionBarActivity {
         b.putString("user", getUserName());
         b.putString("password", getPassword());
         b.putInt("connection", getConnection());
-        b.putInt("userId", getUserId());
+        b.putString("userId", getUserId());
 
         //intent.putExtra(EXTRA_MESSAGE, user);
         intent.putExtras(b);
@@ -189,7 +189,7 @@ public class Login extends ActionBarActivity {
     public void parser(String input){
         try {
             JSONObject results = new JSONObject(input);
-            setUserId(results.getInt("userId"));
+            setUserId(results.getString("userId"));
             setLoginMessage(results.getString("loginMessage"));
         }
         catch(JSONException ex) {
