@@ -55,10 +55,11 @@ public class MainMenu extends ActionBarActivity {
     private static final String TAG = MainMenu.class.getSimpleName();
 
     private BeaconManager beaconManager;
+    private Beacon beacon;
     private static final int REQUEST_ENABLE_BT = 1234;
     private static final String ESTIMOTE_PROXIMITY_UUID = "B9407F30-F5F8-466E-AFF9-25556B57FE6D";
-    private static final Region ALL_ESTIMOTE_BEACONS = new Region("regionId",ESTIMOTE_PROXIMITY_UUID,54212,511);//6245,46072);
-
+    //private static final Region ALL_ESTIMOTE_BEACONS = new Region("regionId",ESTIMOTE_PROXIMITY_UUID,54212,511);//6245,46072);
+    private Region ALL_ESTIMOTE_BEACONS = new Region("regionID",null,null,null);
     //global variables
     public static final String URL = "http://54.200.138.139:8080/BeaconServlet/api/rest/ticket";
 
@@ -190,6 +191,13 @@ public class MainMenu extends ActionBarActivity {
         beaconManager.setBackgroundScanPeriod(TimeUnit.SECONDS.toMillis(1),0);
         beaconManager.setRangingListener(new BeaconManager.RangingListener(){
             @Override public void onBeaconsDiscovered(Region region, List<Beacon> beacons){
+                if(beacons.get(0)!= null){
+                    beacon = beacons.get(0);
+                    ALL_ESTIMOTE_BEACONS = new Region("regionId",beacon.getProximityUUID(),beacon.getMajor(),beacon.getMinor());
+                }
+                else{
+                    Log.d(TAG,"beacons not found");
+                }
                 Log.d(TAG, "Ranged beacons:" + beacons);
             }
         });
@@ -214,6 +222,7 @@ public class MainMenu extends ActionBarActivity {
                 layout.setBackgroundColor(Color.RED);*/
                 Button btnTest = (Button) findViewById(R.id.result);
                 btnTest.setBackgroundColor(Color.RED);
+                check = false;
                 /*Button btnStatus = (Button) findViewById(R.id.status);
                 setStatus(false);
                 //btnStatus.setText("OFF");
