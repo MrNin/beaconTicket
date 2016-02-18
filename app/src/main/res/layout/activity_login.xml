@@ -27,7 +27,7 @@
         android:background="#ffb3dfff"
         android:layout_centerHorizontal="true"
         android:layout_above="@+id/password"
-        android:layout_marginBottom="40dp"/>
+        android:layout_marginBottom="20dp"/>
 
     <Button
         android:layout_width="wrap_content"
@@ -35,9 +35,9 @@
         android:width="100dp"
         android:id="@+id/submitButton"
         android:background="@drawable/enter_button"
-        android:layout_alignParentBottom="true"
+        android:layout_below="@+id/password"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="170dp" />
+        android:layout_marginTop="10dp"/>
 
     <TextView
         android:text=""

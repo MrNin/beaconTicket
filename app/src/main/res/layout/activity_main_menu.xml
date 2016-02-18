@@ -15,7 +15,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/UserNameLabel"
         android:textSize="40dp"
-        android:layout_marginTop="144dp"
+        android:layout_marginTop="110dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:typeface="serif"/>
@@ -29,7 +29,7 @@
         android:textSize="25dp"
         android:background="@drawable/status_on"
         android:layout_below="@+id/UserNameLabel"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="20dp"
         android:layout_marginLeft="60dp"
         />
 
@@ -41,8 +41,8 @@
         android:layout_centerHorizontal="true"
         android:layout_toRightOf="@+id/status"
         android:layout_marginLeft="20dp"
-        android:layout_below="@+id/UserNameLabel"
-        android:layout_marginTop="60dp"
+        android:layout_alignBottom="@+id/status"
+        android:layout_marginTop="8dp"
         />
 
     <Button
@@ -50,8 +50,8 @@
         android:layout_height="wrap_content"
         android:text="Scanner"
         android:id="@+id/result"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="25dp"
+        android:layout_below="@+id/eventResponse"
+        android:layout_marginTop="5dp"
         android:layout_centerHorizontal="true"/>
 
     <TextView
@@ -63,7 +63,7 @@
         android:layout_below="@+id/status"
         android:layout_centerHorizontal="true"
         android:layout_alignStart="@+id/UserNameLabel"
-        android:layout_marginTop="15dp" />
+        android:layout_marginTop="5dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -73,7 +73,7 @@
         android:id="@+id/eventTime"
         android:layout_below="@+id/eventName"
         android:layout_alignStart="@+id/UserNameLabel"
-        android:layout_marginTop="15dp" />
+        android:layout_marginTop="2dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -83,7 +83,7 @@
         android:id="@+id/eventResponse"
         android:layout_below="@+id/eventTime"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="5dp" />
+        android:layout_marginTop="1dp" />
 
 
 </RelativeLayout>
